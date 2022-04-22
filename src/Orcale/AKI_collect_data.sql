@@ -13,7 +13,7 @@ select distinct
       ,dth.*
       ,(dth.DEATH_DATE - pat.DISCHARGE_DATE) DDAYS_SINCE_ENC
 from AKI_onsets pat
-left join &&cdm_db_schema.DEATH dth
+left join "&&cdm_db_schema".DEATH dth
 on pat.PATID = dth.PATID
 ;
 
@@ -28,9 +28,9 @@ select distinct
       ,dth.DEATH_DATE_IMPUTE
       ,dth.DEATH_SOURCE      
 from AKI_onsets pat
-left join &&cdm_db_schema.DEMOGRAPHIC demo
+left join "&&cdm_db_schema".DEMOGRAPHIC demo
 on pat.PATID = demo.PATID
-left join &&cdm_db_schema.DEATH dth
+left join "&&cdm_db_schema".DEATH dth
 on pat.PATID = dth.PATID
 ;
 
@@ -41,7 +41,7 @@ select
       ,v.*
       ,round(v.obsclin_start_date-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-left join &&cdm_db_schema.obs_clin v
+left join "&&cdm_db_schema".obs_clin v
 on pat.PATID = v.PATID
 where v.obsclin_start_date between pat.ADMIT_DATE-30 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 --where v.MEASURE_DATE between pat.ADMIT_DATE-7 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
@@ -55,7 +55,7 @@ select distinct
       ,px.*
       ,round(px.PX_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-left join &&cdm_db_schema.PROCEDURES px
+left join "&&cdm_db_schema".PROCEDURES px
 on pat.PATID = px.PATID
 where px.PX_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 --where (px.PX_DATE    is not null and px.PX_DATE    between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))
@@ -69,7 +69,7 @@ select
       ,dx.*
       ,round(dx.ADMIT_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.DIAGNOSIS dx
+join "&&cdm_db_schema".DIAGNOSIS dx
 on pat.PATID = dx.PATID
 where dx.ADMIT_DATE between pat.ADMIT_DATE-365 and pat.ADMIT_DATE-1
 --where (dx.ADMIT_DATE     is not null and dx.ADMIT_DATE     between pat.ADMIT_DATE-365 and pat.ADMIT_DATE-1)     
@@ -82,7 +82,7 @@ select
       ,dx.*
       ,round(dx.ADMIT_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat 
-join &&cdm_db_schema.DIAGNOSIS dx
+join "&&cdm_db_schema".DIAGNOSIS dx
 on pat.PATID = dx.PATID
 where dx.ADMIT_DATE     between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 --where (dx.ADMIT_DATE     is not null and dx.ADMIT_DATE     between pat.ADMIT_DATE-1 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))     
@@ -96,7 +96,7 @@ select distinct
       ,l.*
       ,round(l.SPECIMEN_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.LAB_RESULT_CM l
+join "&&cdm_db_schema".LAB_RESULT_CM l
 on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)
 --on pat.PATID = l.PATID and 
 --  ((l.LAB_ORDER_DATE is not null and  l.LAB_ORDER_DATE between pat.ADMIT_DATE and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)) or
@@ -110,7 +110,7 @@ select distinct
       ,l.*
       ,round(l.SPECIMEN_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.LAB_RESULT_CM l
+join "&&cdm_db_schema".LAB_RESULT_CM l
 on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE-365 and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)
 --on pat.PATID = l.PATID and
 --  ((l.LAB_ORDER_DATE is not null and  l.LAB_ORDER_DATE between pat.ADMIT_DATE-365 and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)) or
@@ -133,7 +133,7 @@ select distinct
             else null end as RX_QUANTITY_DAILY
       ,round(p.RX_START_DATE-pat.ADMIT_DATE,2) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.PRESCRIBING p
+join "&&cdm_db_schema".PRESCRIBING p
 on pat.PATID = p.PATID
 where p.RXNORM_CUI is not null and
       p.RX_START_DATE is not null and
@@ -153,7 +153,7 @@ select distinct
       ,d.*
       ,round(d.DISPENSE_DATE-pat.ADMIT_DATE,2) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.DISPENSING d
+join "&&cdm_db_schema".DISPENSING d
 on pat.PATID = d.PATID
 where d.NDC is not null and
       d.DISPENSE_DATE between pat.ADMIT_DATE-30 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
@@ -167,7 +167,7 @@ select distinct
       ,m.*
       ,round(m.MEDADMIN_START_DATE-pat.ADMIT_DATE,2) DAYS_SINCE_ADMIT
 from AKI_onsets pat
-join &&cdm_db_schema.MED_ADMIN m
+join "&&cdm_db_schema".MED_ADMIN m
 on pat.PATID = m.PATID
 where m.MEDADMIN_CODE is not null and
       m.MEDADMIN_START_DATE is not null and
@@ -196,5 +196,5 @@ where m.MEDADMIN_CODE is not null and
  - AKI_DMED
  - AKI_DEMO_DEATH
  - AKI_DX_CURRENT
- - AKI_LAB_SCR 
+ - AKI_LAB_SCR */
 ------------------------------------------------------------------------------------
