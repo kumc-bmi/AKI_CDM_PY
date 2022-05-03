@@ -484,7 +484,8 @@ on px.PATID = akie.PATID and
 group by akie.PATID,akie.ENCOUNTERID,akie.ADMIT_DATE_TIME,akie.SERUM_CREAT_BASE,akie.SPECIMEN_DATE_TIME_BASE
 --)
      --,stage_aki as (
--- a semi-cartesian join to identify all eligible 1-, 3-stages w.r.t rolling baseline
+-- a semi-cartesian join to identify all eligible 1-, 3-stages w.r.t rolling basezline
+-- REMOVED Criteria
 select distinct
        s1.PATID
       ,s1.ENCOUNTERID
@@ -493,10 +494,11 @@ select distinct
       ,s1.SERUM_CREAT SERUM_CREAT_RBASE
       ,s2.SERUM_CREAT
       ,s2.SERUM_CREAT - s1.SERUM_CREAT SERUM_CREAT_INC
-      ,case when s2.SERUM_CREAT - s1.SERUM_CREAT >= 0.3 then 1
-            when s2.SERUM_CREAT > 4.0 then 3
-            else 0
-       end as AKI_STAGE
+--      ,case when s2.SERUM_CREAT - s1.SERUM_CREAT >= 0.3 then 1
+--            when s2.SERUM_CREAT > 4.0 then 3
+--            else 0
+--       end as AKI_STAGE
+      ,0 AKI_STAGE
       ,s2.SPECIMEN_DATE_TIME
       ,s2.RESULT_DATE_TIME
 Into #stage_aki
