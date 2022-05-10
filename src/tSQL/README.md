@@ -19,7 +19,8 @@ Share and Enjoy according to the terms of the MIT Open Source License.
       * consort_diagram_BC
 
       * AKI_DEMO
-      * AKI_VITAL
+      * AKI_VITAL (Extract data from obs_clin, populated for CDM v6.1)
+      * AKI_VITAL_OLD (Extract data from vital, populated for CDM v6.0)
       * AKI_PX
       * AKI_DX
       * AKI_LAB
