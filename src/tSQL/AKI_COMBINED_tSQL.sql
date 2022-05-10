@@ -1050,7 +1050,7 @@ where datediff(dd,dx.ADMIT_DATE,pat.ADMIT_DATE) between 1 and 365
 select
        pat.ENCOUNTERID as ONSETS_ENCOUNTERID            	  	
       ,dx.*
-      ,datediff(dd,pat.ADMIT_DATE,dx.ADMIT_DATE) as DAYS_SINCE_ADMIT
+      ,datediff(dd,pat.ADMIT_DATE,dx.DX_DATE) as DAYS_SINCE_ADMIT
 into #AKI_DX_CURRENT
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
