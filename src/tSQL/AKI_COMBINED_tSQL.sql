@@ -1055,7 +1055,7 @@ into #AKI_DX_CURRENT
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
 on pat.PATID = dx.PATID
-where px.PX_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+where dx.DX_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 --order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
 
 
