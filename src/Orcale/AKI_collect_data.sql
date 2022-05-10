@@ -95,11 +95,11 @@ create table AKI_DX_CURRENT as
 select
        to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
       ,dx.*
-      ,round(dx.ADMIT_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
+      ,round(dx.DX_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat 
 join &&cdm_db_schema.DIAGNOSIS dx
 on pat.PATID = dx.PATID
-where dx.ADMIT_DATE     between pat.ADMIT_DATE and coalesce(pat.DISCHARGE_DATE,pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR)
+where dx.DX_DATE between pat.ADMIT_DATE and coalesce(pat.DISCHARGE_DATE,pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR)
 --where (dx.ADMIT_DATE     is not null and dx.ADMIT_DATE     between pat.ADMIT_DATE-1 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))     
 --      (dx.DX_DATE        is not null and dx.DX_DATE        between pat.ADMIT_DATE-1 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))
 ;
