@@ -1,9 +1,10 @@
 /*******************************************************************************
- AKI_collect_data.sql is used to collect all relavent clinical observations for
+ AKI_collect_data.sql (for Orcale) is used to collect all relavent clinical observations for
  the AKI cohort collected in AKI_onsets. More details can be found 
  at: https://github.com/kumc-bmi/AKI_CDM
  
  - &&cdm_db_schema will be substituted by corresponding CDM schema
+ - Replace it using text editor if the user input prompt does not work in your SQL environment 
 ********************************************************************************/
 
 /*Demographic Table*/
@@ -35,6 +36,7 @@ on pat.PATID = dth.PATID
 ;
 
 /*Vital Table*/
+-- Depend on CDM version, only one of the AKI_VITAL or AKI_VITAL_OLD table will populate
 create table AKI_VITAL as
 select 
        to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
@@ -44,6 +46,19 @@ from AKI_onsets pat
 left join &&cdm_db_schema.obs_clin v
 on pat.PATID = v.PATID
 where v.obsclin_start_date between pat.ADMIT_DATE-30 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+--where v.MEASURE_DATE between pat.ADMIT_DATE-7 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
+--      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
+;
+
+create table AKI_VITAL_OLD as
+select 
+       to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
+      ,v.*
+      ,round(v.MEASURE_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
+from AKI_onsets pat
+left join &&cdm_db_schema.VITAL v
+on pat.PATID = v.PATID
+where v.MEASURE_DATE between pat.ADMIT_DATE-30 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 --where v.MEASURE_DATE between pat.ADMIT_DATE-7 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
 --      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
 ;
@@ -84,7 +99,7 @@ select
 from AKI_onsets pat 
 join &&cdm_db_schema.DIAGNOSIS dx
 on pat.PATID = dx.PATID
-where dx.ADMIT_DATE     between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+where dx.ADMIT_DATE     between pat.ADMIT_DATE and coalesce(pat.DISCHARGE_DATE,pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR)
 --where (dx.ADMIT_DATE     is not null and dx.ADMIT_DATE     between pat.ADMIT_DATE-1 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))     
 --      (dx.DX_DATE        is not null and dx.DX_DATE        between pat.ADMIT_DATE-1 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE))
 ;
@@ -111,7 +126,7 @@ select distinct
       ,round(l.SPECIMEN_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat
 join &&cdm_db_schema.LAB_RESULT_CM l
-on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE-365 and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)
+on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE-365 and coalesce(pat.DISCHARGE_DATE,pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)+1
 --on pat.PATID = l.PATID and
 --  ((l.LAB_ORDER_DATE is not null and  l.LAB_ORDER_DATE between pat.ADMIT_DATE-365 and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)) or
 --   (l.SPECIMEN_DATE  is not null and  l.SPECIMEN_DATE  between pat.ADMIT_DATE-365 and least(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE),pat.DISCHARGE_DATE)) or
@@ -188,6 +203,7 @@ where m.MEDADMIN_CODE is not null and
    
  - AKI_DEMO
  - AKI_VITAL
+ - AKI_VITAL_OLD 
  - AKI_PX
  - AKI_DX
  - AKI_LAB

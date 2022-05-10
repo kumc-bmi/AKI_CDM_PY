@@ -1,17 +1,19 @@
 /*******************************************************************************
- AKI_extract_cohort.sql is used to extract the AKI cohort that satisfies the
+ AKI_extract_cohort.sql (for Orcale) is used to extract the AKI cohort that satisfies the
  inclusion and exclusion criteria specified at: 
  https://github.com/kumc-bmi/AKI_CDM/blob/master/report/AKI_CDM_EXT_VALID_p1_QA.Rmd
  
  - &&cdm_db_schema will be substituted by corresponding CDM schema
+ - Replace it using text editor if the user input prompt does not work in your SQL environment 
 ********************************************************************************/
 
 /******************************************************************************
  Collect initial cohort:
  - EI, IP, or IS
  - LOS >= 2
- - between &&start_date and Date &&end_date
-    - first set &&start_date = '2010-01-01' and &&end_date = '2021-12-31'
+ - between &&start_date and '2021-12-31'
+    - first set &&start_date = '2010-01-01' 
+    - Replace it using text editor if the user input prompt does not work in your SQL environment 	
     - if taking too much memory, delay &&start_date
 ******************************************************************************/
 create table AKI_Initial as
@@ -30,7 +32,7 @@ join &&cdm_db_schema.DEMOGRAPHIC d
 on e.PATID = d.PATID
 where e.DISCHARGE_DATE - e.ADMIT_DATE >= 2 and
       e.ENC_TYPE in ('EI','IP','IS') and
-      e.ADMIT_DATE between Date '&&start_date' and Date '&&end_date'
+      e.ADMIT_DATE between Date '&&start_date' and Date '2021-12-31'
 )
 select ENCOUNTERID
       ,PATID
@@ -469,6 +471,7 @@ group by akie.PATID,akie.ENCOUNTERID,akie.ADMIT_DATE_TIME,akie.SERUM_CREAT_BASE,
 
 create table stage_aki as
 -- a semi-cartesian self-join to identify all eligible 1-, 3-stages w.r.t rolling baseline
+-- REMOVED Criteria
 select distinct
        s1.PATID
       ,s1.ENCOUNTERID
@@ -478,10 +481,11 @@ select distinct
       ,s1.SERUM_CREAT SERUM_CREAT_RBASE
       ,s2.SERUM_CREAT
       ,s2.SERUM_CREAT - s1.SERUM_CREAT SERUM_CREAT_INC
-      ,case when s2.SERUM_CREAT - s1.SERUM_CREAT >= 0.3 then 1
-            when s2.SERUM_CREAT > 4.0 then 3
-            else 0
-       end as AKI_STAGE
+--       ,case when s2.SERUM_CREAT - s1.SERUM_CREAT >= 0.3 then 1
+--             when s2.SERUM_CREAT > 4.0 then 3
+--             else 0
+--        end as AKI_STAGE
+      ,0 AKI_STAGE
       ,s2.SPECIMEN_DATE_TIME
       ,s2.RESULT_DATE_TIME
 from AKI_eligible s1
