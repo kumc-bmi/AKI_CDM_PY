@@ -5,6 +5,7 @@
  
  - &&cdm_db_name will be substituted by corresponding database name where CDM data is
  - &&cdm_db_schema will be substituted by corresponding CDM schema
+ - Replace it using text editor if the user input prompt does not work in your SQL environment 
  
 ********************************************************************************/
 
@@ -13,7 +14,8 @@
  - EI, IP, or IS
  - LOS >= 2
  - between &&start_date and Date '2021-12-31'
-    - first set &&start_date = '2010-01-01' (Replace it by intext if the user input prompt does not work in your SQL environment)
+    - first set &&start_date = '2010-01-01'
+	- Replace it using text editor if the user input prompt does not work in your SQL environment
     - if taking too much memory, delay &&start_date
 ******************************************************************************/
 with age_at_admit as (
