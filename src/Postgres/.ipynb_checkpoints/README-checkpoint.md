@@ -1,4 +1,4 @@
-Standalone Orcale scripts for local data extraction out of PCORnet CDM
+Standalone PostgreSQL scripts for local data extraction out of PCORnet CDM
 ====================================================================
 
 by Ho Yin Chan, with Mei Liu
@@ -23,8 +23,7 @@ Share and Enjoy according to the terms of the MIT Open Source License.
 
 2. `AKI_collect_data.sql` is used to collect all relavent clinical observations for the AKI cohort against local PCORnet CDM schema.The following output tables are expected to be delivered:       
       * AKI_DEMO
-      * AKI_VITAL (Extract data from obs_clin, populated for CDM v6.1)
-      * AKI_VITAL_OLD (Extract data from vital, populated for CDM v6.0)      
+      * AKI_VITAL
       * AKI_PX
       * AKI_DX
       * AKI_LAB
