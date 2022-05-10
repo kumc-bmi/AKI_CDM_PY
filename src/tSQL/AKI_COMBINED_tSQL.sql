@@ -12,8 +12,8 @@
  Collect initial cohort:
  - EI, IP, or IS
  - LOS >= 2
- - between &&start_date and Date &&end_date
-    - first set &&start_date = '2010-01-01' and &&end_date = '2021-12-31'
+ - between &&start_date and Date '2021-12-31'
+    - first set &&start_date = '2010-01-01' (Replace it by intext if the user input prompt does not work in your SQL environment)
     - if taking too much memory, delay &&start_date
 ******************************************************************************/
 with age_at_admit as (
@@ -34,7 +34,7 @@ join [&&cdm_db_name].[&&cdm_db_schema].DEMOGRAPHIC d
 on e.PATID = d.PATID
 where datediff(dd,e.ADMIT_DATE,e.DISCHARGE_DATE) >= 2 and
       e.ENC_TYPE in ('EI','IP','IS') and
-      e.ADMIT_DATE between &&start_date and &&end_date
+      e.ADMIT_DATE between &&start_date and '2021-12-31'
 )
 
 select ENCOUNTERID
@@ -304,6 +304,7 @@ select *
 into #AKI_EXCLD_PRF_EN
 from #AKI_EXCLD_PRF_EN_PX
 union all
+select * 
 from #AKI_EXCLD_PRF_EN_DX
  
 --)
@@ -979,10 +980,11 @@ left join [&&cdm_db_name].[&&cdm_db_schema].DEMOGRAPHIC demo
 on pat.PATID = demo.PATID
 left join [&&cdm_db_name].[&&cdm_db_schema].DEATH dth
 on pat.PATID = dth.PATID
-order by pat.PATID, pat.ENCOUNTERID
+--order by pat.PATID, pat.ENCOUNTERID
 ;
 
 /*Vital Table*/
+-- Depend on CDM version, only one of the AKI_VITAL or AKI_VITAL_OLD table will populate
 select
       --,v.VITALID
        pat.ENCOUNTERID as ONSETS_ENCOUNTERID            	  		  
@@ -995,10 +997,28 @@ into #AKI_VITAL
 from #AKI_onsets pat
 left join [&&cdm_db_name].[&&cdm_db_schema].obs_clin v
 on pat.PATID = v.PATID
-where v.obsclin_start_date between dateadd(day,-30,pat.ADMIT_DATE) and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
-      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
-order by PATID, ENCOUNTERID, MEASURE_DATE_TIME
+where v.obsclin_start_date between dateadd(day,-30,pat.ADMIT_DATE) and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+--      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
+--order by PATID, ENCOUNTERID, MEASURE_DATE_TIME
 ;
+
+select
+      --,v.VITALID
+       pat.ENCOUNTERID as ONSETS_ENCOUNTERID            	  		  
+      ,v.*
+--      ,case when v.SMOKING = 'NI' then null else v.SMOKING end as SMOKING
+--      ,case when v.TOBACCO = 'NI' then null else v.TOBACCO end as TOBACCO
+--      ,case when v.TOBACCO_TYPE = 'NI' then null else v.TOBACCO_TYPE end as TOBACCO_TYPE
+      ,datediff(dd,pat.ADMIT_DATE,v.MEASURE_DATE) DAYS_SINCE_ADMIT
+into #AKI_VITAL_OLD
+from #AKI_onsets pat
+left join [&&cdm_db_name].[&&cdm_db_schema].vital v
+on pat.PATID = v.PATID
+where v.MEASURE_DATE between dateadd(day,-30,pat.ADMIT_DATE) and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+--      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
+--order by PATID, ENCOUNTERID, MEASURE_DATE_TIME
+;
+
 
 /*Procedure Table*/
 select distinct
@@ -1010,7 +1030,7 @@ from #AKI_onsets pat
 left join [&&cdm_db_name].[&&cdm_db_schema].[PROCEDURES] px
 on pat.PATID = px.PATID
 where px.PX_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
-order by pat.PATID, pat.ENCOUNTERID, px.PX_DATE desc
+--order by pat.PATID, pat.ENCOUNTERID, px.PX_DATE desc
 
 
 /*Diagnoses Table (historic)*/
@@ -1023,7 +1043,7 @@ from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
 on pat.PATID = dx.PATID
 where datediff(dd,dx.ADMIT_DATE,pat.ADMIT_DATE) between 1 and 365
-order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
+--order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
 
 select
        pat.ENCOUNTERID as ONSETS_ENCOUNTERID            	  	
@@ -1034,7 +1054,7 @@ from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
 on pat.PATID = dx.PATID
 where px.PX_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
-order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
+--order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
 
 
 /*Lab Table*/
@@ -1046,7 +1066,7 @@ into #AKI_LAB
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].LAB_RESULT_CM l
 on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
-order by pat.PATID, pat.ENCOUNTERID, SPECIMEN_DATE_TIME
+--order by pat.PATID, pat.ENCOUNTERID, SPECIMEN_DATE_TIME
 ;
 
 select distinct
@@ -1057,13 +1077,14 @@ into #AKI_LAB_SCR
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].LAB_RESULT_CM l
 on pat.PATID = l.PATID and l.LAB_ORDER_DATE between dateadd(day,-365,pat.ADMIT_DATE)
- and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
+and dateadd(day,1,coalesce(pat.DISCHARGE_DATE,pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR))
 where l.LAB_LOINC in ('2160-0','38483-4','14682-9','21232-4','35203-9','44784-7','59826-8') and 
       UPPER(l.RESULT_UNIT) = 'MG/DL' and
       l.SPECIMEN_SOURCE <> 'URINE' and  /*only serum creatinine*/
       l.RESULT_NUM > 0 /*value 0 could exist*/ 
-order by pat.PATID, pat.ENCOUNTERID, SPECIMEN_DATE_TIME
+--order by pat.PATID, pat.ENCOUNTERID, SPECIMEN_DATE_TIME
 ;
+-- and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE)
 
 
 /*Prescribing Table*/
@@ -1133,6 +1154,7 @@ Select * From #consort_diagram_BC
    
 Select * From #AKI_DEMO
 Select * From #AKI_VITAL
+Select * From #AKI_VITAL_OLD
 Select * From #AKI_PX
 Select * From #AKI_DX
 Select * From #AKI_LAB
