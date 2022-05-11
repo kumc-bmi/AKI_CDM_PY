@@ -924,4 +924,4 @@ where AKI1_onset is not null and
 --drop table EXCLUDE_ALL cascade;
 --drop table SCR48 cascade;
 --drop table STAGE_AKI cascade;
---drop table STAGE_UNI cascade;
+--drop table STAGE_UNI cascade;*/

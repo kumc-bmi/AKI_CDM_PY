@@ -198,5 +198,5 @@ where m.MEDADMIN_CODE is not null and
  - AKI_DMED
  - AKI_DEMO_DEATH
  - AKI_DX_CURRENT
- - AKI_LAB_SCR  
+ - AKI_LAB_SCR  */
 ------------------------------------------------------------------------------------
