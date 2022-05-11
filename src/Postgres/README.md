@@ -34,4 +34,6 @@ Share and Enjoy according to the terms of the MIT Open Source License.
       * AKI_AMED (skip it, if Med_Admin table is not populated)
       * AKI_DMED (skip it, if Dispensing table is not populated)
 
-Remark: but make sure to extract and deliver at least one table with inpatient medication information
+Please export the data in csv format with UTF-8 encoding
+
+Remark: but make sure to extract and deliver at least one table with inpatient medication information and vital information

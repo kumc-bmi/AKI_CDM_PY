@@ -33,4 +33,6 @@ Share and Enjoy according to the terms of the MIT Open Source License.
 
 [inclusion and exclusion criteria]: https://github.com/kumc-bmi/AKI_CDM/blob/master/report/AKI_CDM_EXT_VALID_p1_QA.Rmd
 
-Remark: but make sure to extract and deliver at least one table with inpatient medication information
+Please export the data in csv format with UTF-8 encoding
+
+Remark: but make sure to extract and deliver at least one table with inpatient medication information and vital information
