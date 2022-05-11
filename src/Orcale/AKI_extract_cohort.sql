@@ -3,7 +3,7 @@
  inclusion and exclusion criteria specified at: 
  https://github.com/kumc-bmi/AKI_CDM/blob/master/report/AKI_CDM_EXT_VALID_p1_QA.Rmd
  
- - ""&&cdm_db_schema"" will be substituted by corresponding CDM schema
+ - "&&cdm_db_schema" will be substituted by corresponding CDM schema
  - Replace it using text editor if the user input prompt does not work in your SQL environment 
 ********************************************************************************/
 
@@ -27,8 +27,8 @@ select e.ENCOUNTERID
                'YYYY:MM:DD HH24:MI') DISCHARGE_DATE_TIME
       ,round(e.DISCHARGE_DATE - e.ADMIT_DATE) LOS
       ,row_number() over (partition by e.PATID,e.DISCHARGE_DATE order by e.ADMIT_DATE, e.ADMIT_TIME) rn /*merge admit dates*/
-from ""&&cdm_db_schema"".ENCOUNTER e
-join ""&&cdm_db_schema"".DEMOGRAPHIC d
+from "&&cdm_db_schema".ENCOUNTER e
+join "&&cdm_db_schema".DEMOGRAPHIC d
 on e.PATID = d.PATID
 where e.DISCHARGE_DATE - e.ADMIT_DATE >= 2 and
       e.ENC_TYPE in ('EI','IP','IS') and
@@ -56,7 +56,7 @@ select l.PATID
       ,l.SPECIMEN_TIME
       ,l.RESULT_DATE
       ,l.RESULT_TIME
-from ""&&cdm_db_schema"".LAB_RESULT_CM l
+from "&&cdm_db_schema".LAB_RESULT_CM l
 where l.LAB_LOINC in ('2160-0','38483-4','14682-9','21232-4','35203-9','44784-7','59826-8') and 
       (UPPER(l.RESULT_UNIT) = 'MG/DL' or UPPER(l.RESULT_UNIT) = 'MG') and /*there are variations of common units*/
       l.SPECIMEN_SOURCE <> 'URINE' and  /*only serum creatinine*/
@@ -77,7 +77,7 @@ select sa.PATID
       ,sa.RESULT_DATE
       ,sa.RESULT_TIME
 from Scr_all sa
-join ""&&cdm_db_schema"".DEMOGRAPHIC d
+join "&&cdm_db_schema".DEMOGRAPHIC d
 on sa.PATID = d.PATID
 )
 select distinct 
@@ -188,9 +188,9 @@ select aki.ENCOUNTERID
        , dx.DX
        , dx.ADMIT_DATE
 from AKI_init aki
-left join ""&&cdm_db_schema"".DIAGNOSIS dx
+left join "&&cdm_db_schema".DIAGNOSIS dx
 on aki.PATID = dx.PATID
-where exists (select 1 from ""&&cdm_db_schema"".DIAGNOSIS dx
+where exists (select 1 from "&&cdm_db_schema".DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for ESRD
                     ((dx.DX_TYPE = '09' and
@@ -212,9 +212,9 @@ select aki.ENCOUNTERID
        , dx.DX
        , dx.ADMIT_DATE
 from AKI_init aki
-left join ""&&cdm_db_schema"".DIAGNOSIS dx
+left join "&&cdm_db_schema".DIAGNOSIS dx
 on aki.PATID = dx.PATID
-where exists (select 1 from ""&&cdm_db_schema"".DIAGNOSIS dx
+where exists (select 1 from "&&cdm_db_schema".DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for RRT or dialysis
                     ((dx.DX_TYPE = '09' and
@@ -241,9 +241,9 @@ select aki.ENCOUNTERID
        , px.px
        , px.PX_DATE
 from AKI_init aki
-left join ""&&cdm_db_schema"".PROCEDURES px
+left join "&&cdm_db_schema".PROCEDURES px
 on aki.PATID = px.PATID
-where exists (select 1 from ""&&cdm_db_schema"".PROCEDURES px
+where exists (select 1 from "&&cdm_db_schema".PROCEDURES px
               where px.PATID = aki.PATID and
                     -- CPT codes for RRT or dialysis
                     -- ref: https://www.cms.gov/Regulations-and-Guidance/Guidance/Transmittals/downloads/R1810B3.pdf
@@ -304,9 +304,9 @@ select distinct scr48.ENCOUNTERID
        , px.px
        , px.PX_DATE
 from scr48
-left join ""&&cdm_db_schema"".PROCEDURES px
+left join "&&cdm_db_schema".PROCEDURES px
 on scr48.PATID = px.PATID
-where exists (select 1 from ""&&cdm_db_schema"".PROCEDURES px
+where exists (select 1 from "&&cdm_db_schema".PROCEDURES px
               where px.PATID = scr48.PATID and
                     (
                      (px.PX_TYPE = 'CH' and   
@@ -338,9 +338,9 @@ select distinct aki.ENCOUNTERID
        , dx.ADMIT_DATE
        , dx.DX_SOURCE
 from AKI_init aki
-left join ""&&cdm_db_schema"".DIAGNOSIS dx
+left join "&&cdm_db_schema".DIAGNOSIS dx
 on aki.PATID = dx.PATID
-where exists (select 1 from ""&&cdm_db_schema"".DIAGNOSIS dx
+where exists (select 1 from "&&cdm_db_schema".DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for burn patients
                     ((dx.DX_TYPE = '09' and
@@ -445,7 +445,7 @@ select akie.PATID
       ,akie.SPECIMEN_DATE_TIME_BASE
       ,min(px.PX_DATE) SPECIMEN_DATE_TIME
 from AKI_eligible akie
-join ""&&cdm_db_schema"".PROCEDURES px
+join "&&cdm_db_schema".PROCEDURES px
 on px.PATID = akie.PATID and
    (
     (px.PX_TYPE = 'CH' and 
