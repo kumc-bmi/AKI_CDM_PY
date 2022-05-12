@@ -132,7 +132,7 @@ create table AKI_PMED as
 select distinct
        to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
       ,p.*
-      ,least(pat.DISCHARGE_DATE,p.RX_END_DATE),'YYYY:MM:DD') RX_END_DATE_MOD
+      ,least(pat.DISCHARGE_DATE,p.RX_END_DATE) RX_END_DATE_MOD
       ,case when p.RX_DAYS_SUPPLY > 0 and p.RX_QUANTITY is not null then round(p.RX_QUANTITY/p.RX_DAYS_SUPPLY) 
             else null end as RX_QUANTITY_DAILY
       ,DATE_PART('day',p.RX_START_DATE::date - pat.ADMIT_DATE::date) DAYS_SINCE_ADMIT
