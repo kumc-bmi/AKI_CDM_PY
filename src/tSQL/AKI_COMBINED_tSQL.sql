@@ -6,6 +6,7 @@
  - &&cdm_db_name will be substituted by corresponding database name where CDM data is
  - &&cdm_db_schema will be substituted by corresponding CDM schema
  - Replace it using text editor if the user input prompt does not work in your SQL environment 
+ - The intermediate table removal code can be found at the end of the this file (commented out) 
  
 ********************************************************************************/
 

@@ -4,7 +4,9 @@
  https://github.com/kumc-bmi/AKI_CDM/blob/master/report/AKI_CDM_EXT_VALID_p1_QA.Rmd
  
  - &&cdm_db_schema will be substituted by corresponding CDM schema
- - Replace it using text editor if the user input prompt does not work in your SQL environment */
+ - Replace it using text editor if the user input prompt does not work in your SQL environment 
+ - The intermediate table removal code can be found at the end of the this file (commented out)*/
+ 
 /******************************************************************************
  Collect initial cohort:
  - EI, IP, or IS
