@@ -1000,7 +1000,8 @@ into #AKI_VITAL
 from #AKI_onsets pat
 left join [&&cdm_db_name].[&&cdm_db_schema].obs_clin v
 on pat.PATID = v.PATID
-where v.obsclin_start_date between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+where v.obsclin_start_date between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
+
 --      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
 --order by PATID, ENCOUNTERID, MEASURE_DATE_TIME
 ;
@@ -1017,7 +1018,7 @@ into #AKI_VITAL_OLD
 from #AKI_onsets pat
 left join [&&cdm_db_name].[&&cdm_db_schema].vital v
 on pat.PATID = v.PATID
-where v.MEASURE_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+where v.MEASURE_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 --      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
 --order by PATID, ENCOUNTERID, MEASURE_DATE_TIME
 ;
@@ -1032,7 +1033,7 @@ into #AKI_PX
 from #AKI_onsets pat
 left join [&&cdm_db_name].[&&cdm_db_schema].[PROCEDURES] px
 on pat.PATID = px.PATID
-where px.PX_DATE between pat.ADMIT_DATE and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+where px.PX_DATE between pat.ADMIT_DATE and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 --order by pat.PATID, pat.ENCOUNTERID, px.PX_DATE desc
 
 
@@ -1056,7 +1057,7 @@ into #AKI_DX_CURRENT
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
 on pat.PATID = dx.PATID
-where dx.DX_DATE between pat.ADMIT_DATE and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+where dx.DX_DATE between pat.ADMIT_DATE and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 
 --order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
 
@@ -1069,7 +1070,7 @@ select distinct
 into #AKI_LAB
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].LAB_RESULT_CM l
-on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+on pat.PATID = l.PATID and l.LAB_ORDER_DATE between pat.ADMIT_DATE and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 --order by pat.PATID, pat.ENCOUNTERID, SPECIMEN_DATE_TIME
 ;
 
@@ -1081,7 +1082,7 @@ into #AKI_LAB_SCR
 from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].LAB_RESULT_CM l
 on pat.PATID = l.PATID and l.LAB_ORDER_DATE between dateadd(day,-365,pat.ADMIT_DATE)
-and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 where l.LAB_LOINC in ('2160-0','38483-4','14682-9','21232-4','35203-9','44784-7','59826-8') and 
       UPPER(l.RESULT_UNIT) = 'MG/DL' and
       l.SPECIMEN_SOURCE <> 'URINE' and  /*only serum creatinine*/
@@ -1110,7 +1111,7 @@ where p.RXNORM_CUI is not null and
       p.RX_START_DATE is not null and 
       p.RX_ORDER_DATE is not null and 
       p.RX_ORDER_TIME is not null and
-      p.RX_ORDER_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+      p.RX_ORDER_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 --order by PATID, ENCOUNTERID, RXNORM_CUI, RX_START_DATE
 ;
 
@@ -1125,7 +1126,7 @@ from #AKI_onsets pat
 join [&&cdm_db_name].[&&cdm_db_schema].DISPENSING d
 on pat.PATID = d.PATID
 where d.NDC is not null and
-      d.DISPENSE_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+      d.DISPENSE_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 ;
 
 
@@ -1144,7 +1145,7 @@ where m.MEDADMIN_CODE is not null and
       --m.MEDADMIN_START_TIME is not null and 
       m.MEDADMIN_STOP_DATE is not null and
       --m.MEDADMIN_STOP_TIME is null and
-      m.MEDADMIN_START_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE))
+      m.MEDADMIN_START_DATE between dateadd(day,-30,pat.ADMIT_DATE) and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 ;
 
 -------------------------------------------------------------------------------
