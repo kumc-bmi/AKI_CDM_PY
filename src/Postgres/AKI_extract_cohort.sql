@@ -58,6 +58,7 @@ select l.PATID
       ,l.SPECIMEN_TIME
       ,l.RESULT_DATE
       ,l.RESULT_TIME
+      ,l.ENCOUNTERID        
 from &&cdm_db_schema.LAB_RESULT_CM l
 where l.LAB_LOINC in ('2160-0','38483-4','14682-9','21232-4','35203-9','44784-7','59826-8') and 
       (UPPER(l.RESULT_UNIT) = 'MG/DL' or UPPER(l.RESULT_UNIT) = 'MG') and /*there are variations of common units*/
@@ -86,6 +87,7 @@ on sa.PATID = d.PATID
 select distinct
        PATID
       ,RESULT_NUM SERUM_CREAT
+      ,ENCOUNTERID
       ,cast(175*power(RESULT_NUM,-1.154)*power(age_at_Scr,-0.203)*(0.742*female_ind+(1-female_ind))*(1.212*race_aa_ind+(1-race_aa_ind)) as float4) eGFR
       ,LAB_ORDER_DATE
       ,(SPECIMEN_DATE::date + SPECIMEN_TIME::time) SPECIMEN_DATE_TIME
@@ -101,7 +103,14 @@ where age_at_Scr >= 18
 drop table if exists GPC_aki_project.AKI_Scr_eGFR;
 create table GPC_aki_project.AKI_Scr_eGFR as
 with multi_match as (
-select scr.*,aki.ADMIT_DATE_TIME
+select scr.patid
+      ,scr.encounterid 
+      ,scr.serum_creat
+      ,scr.egfr
+      ,scr.lab_order_date
+      ,scr.specimen_date_time
+      ,scr.result_date_time
+      ,aki.ADMIT_DATE_TIME
 from GPC_aki_project.All_Scr_eGFR scr
 join GPC_aki_project.AKI_Initial aki 
 on scr.ENCOUNTERID = aki.ENCOUNTERID
@@ -196,7 +205,7 @@ drop table if exists GPC_aki_project.AKI_EXCLD_PRF_EN;
 create table GPC_aki_project.AKI_EXCLD_PRF_EN as           
 -- Pre-existing ESRD
 select aki.ENCOUNTERID
-from AKI_init aki
+from GPC_aki_project.AKI_init aki
 where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for ESRD
@@ -216,16 +225,18 @@ drop table if exists GPC_aki_project.AKI_EXCLD_PRRT_EN_DX;
 create table GPC_aki_project.AKI_EXCLD_PRRT_EN_DX as           
 -- Pre-existing dialysis or renal transplantation
 select aki.ENCOUNTERID
-from AKI_init aki
+from GPC_aki_project.AKI_init aki
 where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for RRT or dialysis
-                    ((dx.DX_TYPE = '09' and
+                    (
+                     (dx.DX_TYPE = '09' and
                       (   dx.DX like 'V45.1%'
                        or dx.DX like 'V56.%'
                        or dx.DX like 'V42.0%'
                        or dx.DX like '996.81%'
-                      ) or
+                      )
+                     ) or
                     -- ICD10 for RRT or dialysis
                      (dx.DX_TYPE = '10' and
                       (   dx.DX like 'Z49.31%'
@@ -233,7 +244,8 @@ where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
                        or dx.DX like 'Z94.0%'
                        or dx.DX in ('T86.10', 'T86.11', 'T86.12')
                        )
-                      ) and
+                     )
+                   ) and
                     dx.ADMIT_DATE < date_trunc('day',aki.ADMIT_DATE_TIME::timestamp)
                 )
 ;
@@ -241,7 +253,7 @@ where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
 drop table if exists GPC_aki_project.AKI_EXCLD_PRRT_EN_PX;
 create table GPC_aki_project.AKI_EXCLD_PRRT_EN_PX as           
 select aki.ENCOUNTERID
-from AKI_init aki
+from GPC_aki_project.AKI_init aki
 where exists (select 1 from &&cdm_db_schema.PROCEDURES px
               where px.PATID = aki.PATID and
                     -- CPT codes for RRT or dialysis
@@ -293,7 +305,7 @@ select * from GPC_aki_project.AKI_EXCLD_PRRT_EN_PX
 drop table if exists GPC_aki_project.scr48;
 create table GPC_aki_project.scr48 as 
 -- Receive renal transplant withing 48 hr since 1st Scr (PX, DX)
-select PATID, ENCOUNTERID, date_trunc('day',aki.ADMIT_DATE_TIME::timestamp) admit_date,
+select PATID, ENCOUNTERID, date_trunc('day',ADMIT_DATE_TIME::timestamp) admit_date,
        SPECIMEN_DATE_TIME::date+2 time_bd
 from GPC_aki_project.AKI_Scr_eGFR
 where rn = 1
@@ -302,7 +314,7 @@ where rn = 1
 drop table if exists GPC_aki_project.AKI_EXCLD_RT48_EN;
 create table GPC_aki_project.AKI_EXCLD_RT48_EN as 
 select distinct scr48.ENCOUNTERID
-from scr48
+from GPC_aki_project.scr48 scr48
 where exists (select 1 from &&cdm_db_schema.PROCEDURES px
               where px.PATID = scr48.PATID and
                     -- CPT codes
@@ -332,7 +344,7 @@ drop table if exists GPC_aki_project.AKI_EXCLD_BURN_EN;
 create table GPC_aki_project.AKI_EXCLD_BURN_EN as 
 -- Burn Patients
 select distinct aki.ENCOUNTERID
-from AKI_init aki
+from GPC_aki_project.AKI_init aki
 where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
               where dx.PATID = aki.PATID and
                     -- ICD9 for burn patients
@@ -369,7 +381,7 @@ where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
                        or dx.DX like 'T32.%')
                        )
                       ) and 
-                      dx.ADMIT_DATE = date_trunc('day',init.ADMIT_DATE_TIME::timestamp) and
+                      dx.ADMIT_DATE = date_trunc('day',aki.ADMIT_DATE_TIME::timestamp) and
                       dx.DX_SOURCE = 'AD'
                 )
 ;
@@ -377,15 +389,15 @@ where exists (select 1 from &&cdm_db_schema.DIAGNOSIS dx
 drop table if exists GPC_aki_project.exclude_all;
 create table GPC_aki_project.exclude_all as           
 -- collect all excluded encounters
-select ENCOUNTERID, 'Initial_GFR_below_15' EXCLUD_TYPE from AKI_EXCLD_L1GFR_EN
+select ENCOUNTERID, 'Initial_GFR_below_15' EXCLUD_TYPE from GPC_aki_project.AKI_EXCLD_L1GFR_EN
 union all 
-select ENCOUNTERID, 'Pre_ESRD' EXCLUD_TYPE from AKI_EXCLD_PRF_EN
+select ENCOUNTERID, 'Pre_ESRD' EXCLUD_TYPE from GPC_aki_project.AKI_EXCLD_PRF_EN
 union all
-select ENCOUNTERID, 'Pre_RRT' EXCLUD_TYPE from AKI_EXCLD_PRRT_EN
+select ENCOUNTERID, 'Pre_RRT' EXCLUD_TYPE from GPC_aki_project.AKI_EXCLD_PRRT_EN
 union all
-select ENCOUNTERID, 'RRT_within_48hr' EXCLUD_TYPE from AKI_EXCLD_RT48_EN
+select ENCOUNTERID, 'RRT_within_48hr' EXCLUD_TYPE from GPC_aki_project.AKI_EXCLD_RT48_EN
 union all
-select ENCOUNTERID, 'Burn_patients' EXCLUD_TYPE from AKI_EXCLD_BURN_EN
+select ENCOUNTERID, 'Burn_patients' EXCLUD_TYPE from GPC_aki_project.AKI_EXCLD_BURN_EN
 ;
 
 /*************************************************
@@ -431,7 +443,7 @@ order by scr.PATID, scr.ENCOUNTERID, scr.rn
 /******************************************************************************
  AKI Staging
 ******************************************************************************/
-drop table if exists GPC_aki_project.aki3_rrt
+drop table if exists GPC_aki_project.aki3_rrt;
 create table GPC_aki_project.aki3_rrt as
 -- identify 3-stage AKI based on existence of RRT
 select akie.PATID
@@ -465,7 +477,7 @@ on px.PATID = akie.PATID and
 group by akie.PATID,akie.ENCOUNTERID,akie.ADMIT_DATE_TIME,akie.SERUM_CREAT_BASE,akie.SPECIMEN_DATE_TIME_BASE
 ;
 
-drop table if exists GPC_aki_project.stage_aki
+drop table if exists GPC_aki_project.stage_aki;
 create table GPC_aki_project.stage_aki as
 -- a semi-cartesian self-join to identify all eligible 1-, 3-stages w.r.t rolling baseline
 -- REMOVED Criteria
@@ -526,7 +538,7 @@ select rrt.PATID
 from GPC_aki_project.aki3_rrt rrt
 ;
 
-drop table if exists GPC_aki_project.AKI_stages
+drop table if exists GPC_aki_project.AKI_stages;
 create table GPC_aki_project.AKI_stages as
 select PATID
       ,ENCOUNTERID
@@ -544,7 +556,7 @@ select PATID
 from GPC_aki_project.stage_aki
 ;
 
-drop table if exists GPC_aki_project.stage_uni
+drop table if exists GPC_aki_project.stage_uni;
 create table GPC_aki_project.stage_uni as
 select distinct 
        PATID
@@ -562,7 +574,7 @@ from GPC_aki_project.AKI_stages
 where rn_day = 1
 ;
 
-drop table if exists GPC_aki_project.AKI_stages_daily
+drop table if exists GPC_aki_project.AKI_stages_daily;
 create table GPC_aki_project.AKI_stages_daily as
 select distinct 
        PATID
@@ -608,7 +620,7 @@ from crosstab(
         ,SPECIMEN_DATE
   from GPC_aki_project.AKI_stages_daily
   where rn_desc = 1 and AKI_STAGE_max = 0 and AKI_STAGE = 0
-  order by ENCOUNTER_ID, AKI_STAGE',
+  order by ENCOUNTERID, AKI_STAGE',
   'VALUES (0), (1), (2), (3)'
   )
 as ct(ENCOUNTERID text,
@@ -631,7 +643,7 @@ from crosstab(
          ,SERUM_CREAT
    from GPC_aki_project.AKI_stages_daily
    where rn_desc = 1 and AKI_STAGE_max = 0 and AKI_STAGE = 0
-   order by ENCOUNTER_ID, AKI_STAGE',
+   order by ENCOUNTERID, AKI_STAGE',
    'VALUES (0), (1), (2), (3)'
   )
 as ct(ENCOUNTERID text,
@@ -654,7 +666,7 @@ from crosstab(
          ,SERUM_CREAT_INC
    from GPC_aki_project.AKI_stages_daily
    where rn_desc = 1 and AKI_STAGE_max = 0 and AKI_STAGE = 0
-   order by ENCOUNTER_ID, AKI_STAGE',
+   order by ENCOUNTERID, AKI_STAGE',
    'VALUES (0), (1), (2), (3)'
    )
 as ct(ENCOUNTERID text,
@@ -670,7 +682,7 @@ select pe.PATID
       ,date_trunc('day',init.DISCHARGE_DATE_TIME::timestamp) DISCHARGE_DATE
       ,pe.SERUM_CREAT_BASE
       ,ons.NONAKI_ANCHOR
-      ,ons.NONAKI_ANCHOR::date - pe.ADMIT_DATE::dateNONAKI_SINCE_ADMIT
+      ,ons.NONAKI_ANCHOR::date - pe.ADMIT_DATE::date NONAKI_SINCE_ADMIT
       ,NON_AKI_SCR
       ,NON_AKI_INC
       ,ons.AKI1_ONSET
@@ -698,7 +710,7 @@ on pe.ENCOUNTERID = inc.ENCOUNTERID
 -- some pruning (recovering progress doesn't count)
 select distinct
        PATID
-      ,to_char(ENCOUNTERID) ENCOUNTERID
+      ,ENCOUNTERID::char ENCOUNTERID
       ,ADMIT_DATE
       ,DISCHARGE_DATE
       ,SERUM_CREAT_BASE
@@ -817,7 +829,7 @@ where AKI1_onset is not null and
 ;
 
 drop table if exists GPC_aki_project.consort_diagram_AD;
-create table consort_diagram_AD as
+create table GPC_aki_project.consort_diagram_AD as
 select 'Initial' CNT_TYPE,
        count(distinct encounterid) ENC_CNT
 from GPC_aki_project.AKI_Initial
