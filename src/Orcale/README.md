@@ -35,6 +35,23 @@ Share and Enjoy according to the terms of the MIT Open Source License.
       * AKI_AMED (skip it, if Med_Admin table is not populated)
       * AKI_DMED (skip it, if Dispensing table is not populated)
 
+3. (Optional) `date_shifting.sql` is used for date shifting, please use it if your organization does not have a date shifting pipeline provided. In this case, the table to be exported is renamed as:
+      * DEID_AKI_onsets
+      * consort_diagram_AD
+      * consort_diagram_BC
+      * DEID_AKI_DEMO
+      * DEID_AKI_VITAL
+      * DEID_AKI_VITAL_OLD 
+      * DEID_AKI_PX
+      * DEID_AKI_DX
+      * DEID_AKI_LAB
+      * DEID_AKI_PMED 
+      * DEID_AKI_AMED
+      * DEID_AKI_DMED
+      * DEID_AKI_DEMO_DEATH
+      * DEID_AKI_DX_CURRENT
+      * DEID_AKI_LAB_SCR 
+
 Please export the data in csv format with UTF-8 encoding
 
 Remark: but make sure to extract and deliver at least one table with inpatient medication information and vital information
