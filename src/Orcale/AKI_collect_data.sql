@@ -37,6 +37,8 @@ on pat.PATID = dth.PATID
 
 /*Vital Table*/
 -- Depend on CDM version, only one of the AKI_VITAL or AKI_VITAL_OLD table will populate
+-- If your database is in v6.1 and AKI_VITAL is empty, please check modify the filter condition to corresponding code used in your site
+-- We intend to collect 'SYSTOLIC','HT','SMOKING','TOBACCO_TYPE','TOBACCO','DIASTOLIC','ORIGINAL_BMI','WT' as in vital table in v6.0
 create table AKI_VITAL as
 select 
        to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
@@ -46,8 +48,12 @@ from AKI_onsets pat
 left join "&&cdm_db_schema".obs_clin v
 on pat.PATID = v.PATID
 where v.obsclin_start_date between pat.ADMIT_DATE-30 and greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE)+1
-and v.OBSCLIN_CODE in ('8480-6','8459-0','8460-8','8461-6','75997-7','8462-4','8453-3','8454-1','8455-8','75995-1','3137-7','8302-2','8308-9','3138-5','3141-9','29463-7','8335-2','3142-7','8341-0','8340-2','39156-5','89270-3','722499006','11366-2','11367-0','39240-7','39243-1','63608-4','63638-1','64234-8','67741-9','72166-2','74010-0','74011-8','81229-7','82769-1','8663-7','8664-5','88029-4','88030-2','88031-0','95494-1','95529-4','96101-1','96103-7')
---where v.MEASURE_DATE between pat.ADMIT_DATE-7 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
+and 
+(v.OBSCLIN_CODE in ('8480-6','8459-0','8460-8','8461-6','75997-7','8462-4','8453-3','8454-1','8455-8','75995-1','3137-7','8302-2','8308-9','3138-5','3141-9','29463-7','8335-2','3142-7','8341-0','8340-2','39156-5','89270-3','722499006','11366-2','11367-0','39240-7','39243-1','63608-4','63638-1','64234-8','67741-9','72166-2','74010-0','74011-8','81229-7','82769-1','8663-7','8664-5','88029-4','88030-2','88031-0','95494-1','95529-4','96101-1','96103-7')
+or
+v.OBSCLIN_CODE in ('SYSTOLIC','HT','SMOKING','TOBACCO_TYPE','TOBACCO','DIASTOLIC','ORIGINAL_BMI','WT')
+)
+     --where v.MEASURE_DATE between pat.ADMIT_DATE-7 and coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR,pat.DISCHARGE_DATE) and
 --      coalesce(v.HT, v.WT, v.SYSTOLIC, v.DIASTOLIC, v.ORIGINAL_BMI) is not null
 ;
 
