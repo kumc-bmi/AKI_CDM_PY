@@ -25,381 +25,380 @@
 create table GPC_aki_project.dateshift_table as
 with unique_id as(
 select
-distinct("PATID")
+distinct("patid")
 from GPC_aki_project.AKI_onsets
 )
 select 
-"PATID"
+"patid"
 ,floor(random()*(-365-(-1)+1))+(-1) as date_shift -- Change your range here
-from GPC_aki_project.unique_id;
+from unique_id;
 
-create table GPC_aki_project.DEID_AKI_ONSETS as
+create table gpc_aki_project.deid_aki_onsets as
 select
-    aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."ADMIT_DATE" + pd.date_shift * interval '1 DAY' "ADMIT_DATE",
-	aki."ADMIT_YEAR" , 
-	aki."DISCHARGE_DATE" + pd.date_shift * interval '1 DAY' "DISCHARGE_DATE",
-	aki."SERUM_CREAT_BASE" , 
-	aki."NONAKI_ANCHOR" + pd.date_shift * interval '1 DAY' "NONAKI_ANCHOR",
-	aki."NONAKI_SINCE_ADMIT" , 
-	aki."NON_AKI_SCR" , 
-	aki."NON_AKI_INC" , 
-	aki."AKI1_ONSET" + pd.date_shift * interval '1 DAY' "AKI1_ONSET",
-	aki."AKI1_SINCE_ADMIT" , 
-	aki."AKI1_SCR" , 
-	aki."AKI1_INC" , 
-	aki."AKI2_ONSET" + pd.date_shift * interval '1 DAY' "AKI2_ONSET",
-	aki."AKI2_SINCE_ADMIT" , 
-	aki."AKI2_SCR" , 
-	aki."AKI2_INC" , 
-	aki."BCCOVID" , 
-	aki."AKI3_ONSET" + pd.date_shift * interval '1 DAY' "AKI3_ONSET",
-	aki."AKI3_SINCE_ADMIT" , 
-	aki."AKI3_SCR" , 
-	aki."AKI3_INC" 
-from GPC_aki_project.AKI_onsets aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."patid" , 
+	aki."encounterid" , 
+	aki."admit_date" + pd.date_shift * interval '1 day' "admit_date",
+	aki."discharge_date" + pd.date_shift * interval '1 day' "discharge_date",
+	aki."serum_creat_base" , 
+	aki."nonaki_anchor" + pd.date_shift * interval '1 day' "nonaki_anchor",
+	aki."nonaki_since_admit" , 
+	aki."non_aki_scr" , 
+	aki."non_aki_inc" , 
+	aki."aki1_onset" + pd.date_shift * interval '1 day' "aki1_onset",
+	aki."aki1_since_admit" , 
+	aki."aki1_scr" , 
+	aki."aki1_inc" , 
+	aki."aki2_onset" + pd.date_shift * interval '1 day' "aki2_onset",
+	aki."aki2_since_admit" , 
+	aki."aki2_scr" , 
+	aki."aki2_inc" , 
+	aki."bccovid" , 
+	aki."aki3_onset" + pd.date_shift * interval '1 day' "aki3_onset",
+	aki."aki3_since_admit" , 
+	aki."aki3_scr" , 
+	aki."aki3_inc" 
+from gpc_aki_project.aki_onsets aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_DEMO_DEATH as
-select "ONSETS_ENCOUNTERID", 
-	aki."PATID" , 
-	aki."DEATH_DATE" + pd.date_shift * interval '1 DAY' "DEATH_DATE", 
-	aki."DEATH_DATE_IMPUTE" , 
-	aki."DEATH_SOURCE" , 
-	aki."DEATH_MATCH_CONFIDENCE" , 
-	aki."DDAYS_SINCE_ENC" 
-from GPC_aki_project.AKI_DEMO_DEATH aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+create table gpc_aki_project.deid_aki_demo_death as
+select "onsets_encounterid", 
+	aki."patid" , 
+	aki."death_date" + pd.date_shift * interval '1 day' "death_date", 
+	aki."death_date_impute" , 
+	aki."death_source" , 
+	aki."death_match_confidence" , 
+	aki."ddays_since_enc" 
+from gpc_aki_project.aki_demo_death aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_DEMO as
+create table gpc_aki_project.deid_aki_demo as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."AGE" , 
-	aki."PATID", 
-	aki."BIRTH_DATE" + pd.date_shift * interval '1 DAY' "BIRTH_DATE",
-	aki."BIRTH_TIME" , 
-	aki."SEX", 
-	aki."SEXUAL_ORIENTATION" , 
-	aki."GENDER_IDENTITY" , 
-	aki."HISPANIC" , 
-	aki."BIOBANK_FLAG" , 
-	aki."RACE" , 
-	aki."PAT_PREF_LANGUAGE_SPOKEN" , 
-	aki."RAW_SEX" , 
-	aki."RAW_SEXUAL_ORIENTATION" , 
-	aki."RAW_GENDER_IDENTITY" , 
-	aki."RAW_HISPANIC" , 
-	aki."RAW_RACE" , 
-	aki."RAW_PAT_PREF_LANGUAGE_SPOKEN" , 
-	aki."DEATH_DATE" + pd.date_shift * interval '1 DAY' "DEATH_DATE", 
-	aki."DDAYS_SINCE_ENC" , 
-	aki."DEATH_DATE_IMPUTE" , 
-	aki."DEATH_SOURCE" 
-from GPC_aki_project.AKI_DEMO aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."age" , 
+	aki."patid", 
+	aki."birth_date" + pd.date_shift * interval '1 day' "birth_date",
+	aki."birth_time" , 
+	aki."sex", 
+	aki."sexual_orientation" , 
+	aki."gender_identity" , 
+	aki."hispanic" , 
+	aki."biobank_flag" , 
+	aki."race" , 
+	aki."pat_pref_language_spoken" , 
+	aki."raw_sex" , 
+	aki."raw_sexual_orientation" , 
+	aki."raw_gender_identity" , 
+	aki."raw_hispanic" , 
+	aki."raw_race" , 
+	aki."raw_pat_pref_language_spoken" , 
+	aki."death_date" + pd.date_shift * interval '1 day' "death_date", 
+	aki."ddays_since_enc" , 
+	aki."death_date_impute" , 
+	aki."death_source" 
+from gpc_aki_project.aki_demo aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_PX as
+create table gpc_aki_project.deid_aki_px as
 select 
-    aki."ONSETS_ENCOUNTERID" ,
-	aki."PROCEDURESID",
-	aki."PATID" , 
-	aki."ENCOUNTERID", 
-	aki."ENC_TYPE", 
-	aki."ADMIT_DATE" + pd.date_shift * interval '1 DAY' "ADMIT_DATE", 
-	aki."PROVIDERID" , 
-	aki."PX_DATE" + pd.date_shift * interval '1 DAY' "PX_DATE", 
-	aki."PX" , 
-	aki."PX_TYPE" , 
-	aki."PX_SOURCE" , 
-	aki."PPX" , 
-	aki."RAW_PX" , 
-	aki."RAW_PX_TYPE" , 
-	aki."RAW_PPX" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_PX aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" ,
+	aki."proceduresid",
+	aki."patid" , 
+	aki."encounterid", 
+	aki."enc_type", 
+	aki."admit_date" + pd.date_shift * interval '1 day' "admit_date", 
+	aki."providerid" , 
+	aki."px_date" + pd.date_shift * interval '1 day' "px_date", 
+	aki."px" , 
+	aki."px_type" , 
+	aki."px_source" , 
+	aki."ppx" , 
+	aki."raw_px" , 
+	aki."raw_px_type" , 
+	aki."raw_ppx" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_px aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_VITAL as
+create table gpc_aki_project.deid_aki_vital as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."OBSCLINID" , 
-	aki."PATID", 
-	aki."ENCOUNTERID" , 
-	aki."OBSCLIN_PROVIDERID" , 
-	aki."OBSCLIN_START_DATE" + pd.date_shift * interval '1 DAY' "OBSCLIN_START_DATE", 
-	aki."OBSCLIN_START_TIME" , 
-	aki."OBSCLIN_STOP_DATE" + pd.date_shift * interval '1 DAY' "OBSCLIN_STOP_DATE", 
-	aki."OBSCLIN_STOP_TIME" , 
-	aki."OBSCLIN_TYPE" , 
-	aki."OBSCLIN_CODE" , 
-	aki."OBSCLIN_RESULT_QUAL" , 
-	aki."OBSCLIN_RESULT_TEXT" , 
-	aki."OBSCLIN_RESULT_SNOMED" , 
-	aki."OBSCLIN_RESULT_NUM" , 
-	aki."OBSCLIN_RESULT_MODIFIER" , 
-	aki."OBSCLIN_RESULT_UNIT" , 
-	aki."OBSCLIN_ABN_IND" , 
-	aki."RAW_OBSCLIN_NAME", 
-	aki."RAW_OBSCLIN_CODE" , 
-	aki."RAW_OBSCLIN_TYPE" , 
-	aki."RAW_OBSCLIN_RESULT" , 
-	aki."RAW_OBSCLIN_MODIFIER" , 
-	aki."RAW_OBSCLIN_UNIT" , 
-	aki."OBSCLIN_SOURCE" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_VITAL aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."obsclinid" , 
+	aki."patid", 
+	aki."encounterid" , 
+	aki."obsclin_providerid" , 
+	aki."obsclin_start_date" + pd.date_shift * interval '1 day' "obsclin_start_date", 
+	aki."obsclin_start_time" , 
+	aki."obsclin_stop_date" + pd.date_shift * interval '1 day' "obsclin_stop_date", 
+	aki."obsclin_stop_time" , 
+	aki."obsclin_type" , 
+	aki."obsclin_code" , 
+	aki."obsclin_result_qual" , 
+	aki."obsclin_result_text" , 
+	aki."obsclin_result_snomed" , 
+	aki."obsclin_result_num" , 
+	aki."obsclin_result_modifier" , 
+	aki."obsclin_result_unit" , 
+	aki."obsclin_abn_ind" , 
+	aki."raw_obsclin_name", 
+	aki."raw_obsclin_code" , 
+	aki."raw_obsclin_type" , 
+	aki."raw_obsclin_result" , 
+	aki."raw_obsclin_modifier" , 
+	aki."raw_obsclin_unit" , 
+	aki."obsclin_source" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_vital aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_DX as
+create table gpc_aki_project.deid_aki_dx as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."DIAGNOSISID" , 
-	aki."PATID", 
-	aki."ENCOUNTERID" , 
-	aki."ENC_TYPE" , 
-	aki."ADMIT_DATE" + pd.date_shift * interval '1 DAY' "ADMIT_DATE", 
-	aki."DX_DATE" + pd.date_shift * interval '1 DAY' "DX_DATE", 
-	aki."PROVIDERID" , 
-	aki."DX" , 
-	aki."DX_TYPE" , 
-	aki."DX_SOURCE" , 
-	aki."DX_ORIGIN" , 
-	aki."PDX" , 
-	aki."DX_POA" , 
-	aki."RAW_DX" , 
-	aki."RAW_DX_TYPE" , 
-	aki."RAW_DX_SOURCE" , 
-	aki."RAW_ORIGDX" , 
-	aki."RAW_PDX" , 
-	aki."RAW_DX_POA" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_DX aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."diagnosisid" , 
+	aki."patid", 
+	aki."encounterid" , 
+	aki."enc_type" , 
+	aki."admit_date" + pd.date_shift * interval '1 day' "admit_date", 
+	aki."dx_date" + pd.date_shift * interval '1 day' "dx_date", 
+	aki."providerid" , 
+	aki."dx" , 
+	aki."dx_type" , 
+	aki."dx_source" , 
+	aki."dx_origin" , 
+	aki."pdx" , 
+	aki."dx_poa" , 
+	aki."raw_dx" , 
+	aki."raw_dx_type" , 
+	aki."raw_dx_source" , 
+	aki."raw_origdx" , 
+	aki."raw_pdx" , 
+	aki."raw_dx_poa" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_dx aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_LAB as
+create table gpc_aki_project.deid_aki_lab as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."LAB_RESULT_CM_ID" , 
-	aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."SPECIMEN_SOURCE" , 
-	aki."LAB_LOINC" , 
-	aki."PRIORITY" , 
-	aki."RESULT_LOC", 
-	aki."LAB_PX" , 
-	aki."LAB_PX_TYPE" , 
-	aki."LAB_ORDER_DATE" + pd.date_shift * interval '1 DAY' "LAB_ORDER_DATE", 
-	aki."SPECIMEN_DATE" + pd.date_shift * interval '1 DAY' "SPECIMEN_DATE", 
-	aki."SPECIMEN_TIME" , 
-	aki."RESULT_DATE" + pd.date_shift * interval '1 DAY' "RESULT_DATE", 
-	aki."RESULT_TIME" , 
-	aki."RESULT_QUAL" , 
-	aki."RESULT_SNOMED" , 
-	aki."RESULT_NUM" , 
-	aki."RESULT_MODIFIER" , 
-	aki."RESULT_UNIT" , 
-	aki."NORM_RANGE_LOW" , 
-	aki."NORM_MODIFIER_LOW" , 
-	aki."NORM_RANGE_HIGH", 
-	aki."NORM_MODIFIER_HIGH" , 
-	aki."ABN_IND" , 
-	aki."RAW_LAB_NAME" , 
-	aki."RAW_LAB_CODE" , 
-	aki."RAW_PANEL" , 
-	aki."RAW_RESULT" , 
-	aki."RAW_UNIT" , 
-	aki."RAW_ORDER_DEPT" , 
-	aki."RAW_FACILITY_CODE" , 
-	aki."LAB_LOINC_SOURCE" , 
-	aki."LAB_RESULT_SOURCE" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_LAB aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."lab_result_cm_id" , 
+	aki."patid" , 
+	aki."encounterid" , 
+	aki."specimen_source" , 
+	aki."lab_loinc" , 
+	aki."priority" , 
+	aki."result_loc", 
+	aki."lab_px" , 
+	aki."lab_px_type" , 
+	aki."lab_order_date" + pd.date_shift * interval '1 day' "lab_order_date", 
+	aki."specimen_date" + pd.date_shift * interval '1 day' "specimen_date", 
+	aki."specimen_time" , 
+	aki."result_date" + pd.date_shift * interval '1 day' "result_date", 
+	aki."result_time" , 
+	aki."result_qual" , 
+	aki."result_snomed" , 
+	aki."result_num" , 
+	aki."result_modifier" , 
+	aki."result_unit" , 
+	aki."norm_range_low" , 
+	aki."norm_modifier_low" , 
+	aki."norm_range_high", 
+	aki."norm_modifier_high" , 
+	aki."abn_ind" , 
+	aki."raw_lab_name" , 
+	aki."raw_lab_code" , 
+	aki."raw_panel" , 
+	aki."raw_result" , 
+	aki."raw_unit" , 
+	aki."raw_order_dept" , 
+	aki."raw_facility_code" , 
+	aki."lab_loinc_source" , 
+	aki."lab_result_source" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_lab aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
 
-create table GPC_aki_project.DEID_AKI_PMED as
+create table gpc_aki_project.deid_aki_pmed as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."PRESCRIBINGID" , 
-	aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."RX_PROVIDERID" , 
-	aki."RX_ORDER_DATE" + pd.date_shift * interval '1 DAY' "RX_ORDER_DATE", 
-	aki."RX_ORDER_TIME" , 
-	aki."RX_START_DATE" + pd.date_shift * interval '1 DAY' "RX_START_DATE", 
-	aki."RX_END_DATE" + pd.date_shift * interval '1 DAY' "RX_END_DATE", 
-	aki."RX_DOSE_ORDERED" , 
-	aki."RX_DOSE_ORDERED_UNIT" , 
-	aki."RX_QUANTITY" , 
-	aki."RX_DOSE_FORM" , 
-	aki."RX_REFILLS" , 
-	aki."RX_DAYS_SUPPLY" , 
-	aki."RX_FREQUENCY" , 
-	aki."RX_PRN_FLAG" , 
-	aki."RX_ROUTE" , 
-	aki."RX_BASIS" , 
-	aki."RXNORM_CUI" , 
-	aki."RX_SOURCE", 
-	aki."RX_DISPENSE_AS_WRITTEN" , 
-	aki."RAW_RX_MED_NAME" , 
-	aki."RAW_RX_FREQUENCY" , 
-	aki."RAW_RXNORM_CUI" , 
-	aki."RAW_RX_QUANTITY", 
-	aki."RAW_RX_NDC" , 
-	aki."RAW_RX_DOSE_ORDERED" , 
-	aki."RAW_RX_DOSE_ORDERED_UNIT", 
-	aki."RAW_RX_ROUTE" , 
-	aki."RAW_RX_REFILLS" , 
-	aki."RX_END_DATE_MOD" + pd.date_shift * interval '1 DAY' "RX_END_DATE_MOD", 
-	aki."RX_QUANTITY_DAILY" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_PMED aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."prescribingid" , 
+	aki."patid" , 
+	aki."encounterid" , 
+	aki."rx_providerid" , 
+	aki."rx_order_date" + pd.date_shift * interval '1 day' "rx_order_date", 
+	aki."rx_order_time" , 
+	aki."rx_start_date" + pd.date_shift * interval '1 day' "rx_start_date", 
+	aki."rx_end_date" + pd.date_shift * interval '1 day' "rx_end_date", 
+	aki."rx_dose_ordered" , 
+	aki."rx_dose_ordered_unit" , 
+	aki."rx_quantity" , 
+	aki."rx_dose_form" , 
+	aki."rx_refills" , 
+	aki."rx_days_supply" , 
+	aki."rx_frequency" , 
+	aki."rx_prn_flag" , 
+	aki."rx_route" , 
+	aki."rx_basis" , 
+	aki."rxnorm_cui" , 
+	aki."rx_source", 
+	aki."rx_dispense_as_written" , 
+	aki."raw_rx_med_name" , 
+	aki."raw_rx_frequency" , 
+	aki."raw_rxnorm_cui" , 
+	aki."raw_rx_quantity", 
+	aki."raw_rx_ndc" , 
+	aki."raw_rx_dose_ordered" , 
+	aki."raw_rx_dose_ordered_unit", 
+	aki."raw_rx_route" , 
+	aki."raw_rx_refills" , 
+	aki."rx_end_date_mod" + pd.date_shift * interval '1 day' "rx_end_date_mod", 
+	aki."rx_quantity_daily" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_pmed aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_AMED as
+create table gpc_aki_project.deid_aki_amed as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."MEDADMINID", 
-	aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."PRESCRIBINGID" , 
-	aki."MEDADMIN_PROVIDERID", 
-	aki."MEDADMIN_START_DATE" + pd.date_shift * interval '1 DAY' "MEDADMIN_START_DATE", 
-	aki."MEDADMIN_START_TIME" , 
-	aki."MEDADMIN_STOP_DATE" + pd.date_shift * interval '1 DAY' "MEDADMIN_STOP_DATE", 
-	aki."MEDADMIN_STOP_TIME" , 
-	aki."MEDADMIN_TYPE" , 
-	aki."MEDADMIN_CODE" , 
-	aki."MEDADMIN_DOSE_ADMIN", 
-	aki."MEDADMIN_DOSE_ADMIN_UNIT" , 
-	aki."MEDADMIN_ROUTE", 
-	aki."MEDADMIN_SOURCE", 
-	aki."RAW_MEDADMIN_MED_NAME" , 
-	aki."RAW_MEDADMIN_CODE" , 
-	aki."RAW_MEDADMIN_DOSE_ADMIN" , 
-	aki."RAW_MEDADMIN_DOSE_ADMIN_UNIT" , 
-	aki."RAW_MEDADMIN_ROUTE" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_AMED aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."medadminid", 
+	aki."patid" , 
+	aki."encounterid" , 
+	aki."prescribingid" , 
+	aki."medadmin_providerid", 
+	aki."medadmin_start_date" + pd.date_shift * interval '1 day' "medadmin_start_date", 
+	aki."medadmin_start_time" , 
+	aki."medadmin_stop_date" + pd.date_shift * interval '1 day' "medadmin_stop_date", 
+	aki."medadmin_stop_time" , 
+	aki."medadmin_type" , 
+	aki."medadmin_code" , 
+	aki."medadmin_dose_admin", 
+	aki."medadmin_dose_admin_unit" , 
+	aki."medadmin_route", 
+	aki."medadmin_source", 
+	aki."raw_medadmin_med_name" , 
+	aki."raw_medadmin_code" , 
+	aki."raw_medadmin_dose_admin" , 
+	aki."raw_medadmin_dose_admin_unit" , 
+	aki."raw_medadmin_route" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_amed aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_DMED as
+create table gpc_aki_project.deid_aki_dmed as
 select 
-    aki."ONSETS_ENCOUNTERID" ,
-	aki."DISPENSINGID" , 
-	aki."PATID" , 
-	aki."PRESCRIBINGID" , 
-	aki."DISPENSE_DATE" + pd.date_shift * interval '1 DAY' "DISPENSE_DATE", 
-	aki."NDC", 
-	aki."DISPENSE_SUP" , 
-	aki."DISPENSE_AMT" , 
-	aki."DISPENSE_DOSE_DISP" , 
-	aki."DISPENSE_DOSE_DISP_UNIT", 
-	aki."DISPENSE_ROUTE" , 
-	aki."RAW_NDC" , 
-	aki."RAW_DISPENSE_DOSE_DISP" , 
-	aki."RAW_DISPENSE_DOSE_DISP_UNIT" , 
-	aki."RAW_DISPENSE_ROUTE" , 
-	aki."DISPENSE_SOURCE" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_DMED aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" ,
+	aki."dispensingid" , 
+	aki."patid" , 
+	aki."prescribingid" , 
+	aki."dispense_date" + pd.date_shift * interval '1 day' "dispense_date", 
+	aki."ndc", 
+	aki."dispense_sup" , 
+	aki."dispense_amt" , 
+	aki."dispense_dose_disp" , 
+	aki."dispense_dose_disp_unit", 
+	aki."dispense_route" , 
+	aki."raw_ndc" , 
+	aki."raw_dispense_dose_disp" , 
+	aki."raw_dispense_dose_disp_unit" , 
+	aki."raw_dispense_route" , 
+	aki."dispense_source" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_dmed aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
 
-create table GPC_aki_project.DEID_AKI_DX_CURRENT as
+create table gpc_aki_project.deid_aki_dx_current as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."DIAGNOSISID" , 
-	aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."ENC_TYPE" , 
-	aki."ADMIT_DATE" + pd.date_shift * interval '1 DAY' "ADMIT_DATE", 
-	aki."DX_DATE" + pd.date_shift * interval '1 DAY' "DX_DATE", 
-	aki."PROVIDERID" , 
-	aki."DX" , 
-	aki."DX_TYPE" , 
-	aki."DX_SOURCE" , 
-	aki."DX_ORIGIN" , 
-	aki."PDX" , 
-	aki."DX_POA" , 
-	aki."RAW_DX" , 
-	aki."RAW_DX_TYPE" , 
-	aki."RAW_DX_SOURCE" , 
-	aki."RAW_ORIGDX", 
-	aki."RAW_PDX" , 
-	aki."RAW_DX_POA" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_DX_CURRENT aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."diagnosisid" , 
+	aki."patid" , 
+	aki."encounterid" , 
+	aki."enc_type" , 
+	aki."admit_date" + pd.date_shift * interval '1 day' "admit_date", 
+	aki."dx_date" + pd.date_shift * interval '1 day' "dx_date", 
+	aki."providerid" , 
+	aki."dx" , 
+	aki."dx_type" , 
+	aki."dx_source" , 
+	aki."dx_origin" , 
+	aki."pdx" , 
+	aki."dx_poa" , 
+	aki."raw_dx" , 
+	aki."raw_dx_type" , 
+	aki."raw_dx_source" , 
+	aki."raw_origdx", 
+	aki."raw_pdx" , 
+	aki."raw_dx_poa" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_dx_current aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_LAB_SCR as
+create table gpc_aki_project.deid_aki_lab_scr as
 select 
-    aki."ONSETS_ENCOUNTERID" , 
-	aki."LAB_RESULT_CM_ID" , 
-	aki."PATID" , 
-	aki."ENCOUNTERID", 
-	aki."SPECIMEN_SOURCE" , 
-	aki."LAB_LOINC" , 
-	aki."PRIORITY" , 
-	aki."RESULT_LOC" , 
-	aki."LAB_PX" , 
-	aki."LAB_PX_TYPE" , 
-	aki."LAB_ORDER_DATE" + pd.date_shift * interval '1 DAY' "LAB_ORDER_DATE", 
-	aki."SPECIMEN_DATE" + pd.date_shift * interval '1 DAY' "SPECIMEN_DATE", 
-	aki."SPECIMEN_TIME" , 
-	aki."RESULT_DATE" + pd.date_shift * interval '1 DAY' "RESULT_DATE", 
-	aki."RESULT_TIME" , 
-	aki."RESULT_QUAL" , 
-	aki."RESULT_SNOMED" , 
-	aki."RESULT_NUM" , 
-	aki."RESULT_MODIFIER" , 
-	aki."RESULT_UNIT" , 
-	aki."NORM_RANGE_LOW" , 
-	aki."NORM_MODIFIER_LOW" , 
-	aki."NORM_RANGE_HIGH" , 
-	aki."NORM_MODIFIER_HIGH" , 
-	aki."ABN_IND" , 
-	aki."RAW_LAB_NAME", 
-	aki."RAW_LAB_CODE" , 
-	aki."RAW_PANEL" , 
-	aki."RAW_RESULT" , 
-	aki."RAW_UNIT" , 
-	aki."RAW_ORDER_DEPT" , 
-	aki."RAW_FACILITY_CODE" , 
-	aki."LAB_LOINC_SOURCE" , 
-	aki."LAB_RESULT_SOURCE" , 
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_LAB_SCR aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid" , 
+	aki."lab_result_cm_id" , 
+	aki."patid" , 
+	aki."encounterid", 
+	aki."specimen_source" , 
+	aki."lab_loinc" , 
+	aki."priority" , 
+	aki."result_loc" , 
+	aki."lab_px" , 
+	aki."lab_px_type" , 
+	aki."lab_order_date" + pd.date_shift * interval '1 day' "lab_order_date", 
+	aki."specimen_date" + pd.date_shift * interval '1 day' "specimen_date", 
+	aki."specimen_time" , 
+	aki."result_date" + pd.date_shift * interval '1 day' "result_date", 
+	aki."result_time" , 
+	aki."result_qual" , 
+	aki."result_snomed" , 
+	aki."result_num" , 
+	aki."result_modifier" , 
+	aki."result_unit" , 
+	aki."norm_range_low" , 
+	aki."norm_modifier_low" , 
+	aki."norm_range_high" , 
+	aki."norm_modifier_high" , 
+	aki."abn_ind" , 
+	aki."raw_lab_name", 
+	aki."raw_lab_code" , 
+	aki."raw_panel" , 
+	aki."raw_result" , 
+	aki."raw_unit" , 
+	aki."raw_order_dept" , 
+	aki."raw_facility_code" , 
+	aki."lab_loinc_source" , 
+	aki."lab_result_source" , 
+	aki."days_since_admit" 
+from gpc_aki_project.aki_lab_scr aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
 
-create table GPC_aki_project.DEID_AKI_VITAL_OLD as
+create table gpc_aki_project.deid_aki_vital_old as
 select 
-    aki."ONSETS_ENCOUNTERID", 
-	aki."VITALID" , 
-	aki."PATID" , 
-	aki."ENCOUNTERID" , 
-	aki."MEASURE_DATE" + pd.date_shift * interval '1 DAY' "MEASURE_DATE", 
-	aki."MEASURE_TIME", 
-	aki."VITAL_SOURCE" ,
-	aki."HT" ,
-	aki."WT" ,
-	aki."DIASTOLIC" ,
-	aki."SYSTOLIC",
-	aki."ORIGINAL_BMI" ,
-	aki."BP_POSITION" ,
-	aki."SMOKING" ,
-	aki."TOBACCO" ,
-	aki."TOBACCO_TYPE" ,
-	aki."RAW_VITAL_SOURCE" ,
-	aki."RAW_HT" ,
-	aki."RAW_WT" ,
-	aki."RAW_DIASTOLIC" , 
-	aki."RAW_SYSTOLIC" ,
-	aki."RAW_BP_POSITION" ,
-	aki."RAW_SMOKING" ,
-	aki."RAW_TOBACCO" ,
-	aki."RAW_TOBACCO_TYPE" ,
-	aki."DAYS_SINCE_ADMIT" 
-from GPC_aki_project.AKI_VITAL_OLD aki
-join GPC_aki_project.dateshift_table pd on pd.patid = aki.patid;
+    aki."onsets_encounterid", 
+	aki."vitalid" , 
+	aki."patid" , 
+	aki."encounterid" , 
+	aki."measure_date" + pd.date_shift * interval '1 day' "measure_date", 
+	aki."measure_time", 
+	aki."vital_source" ,
+	aki."ht" ,
+	aki."wt" ,
+	aki."diastolic" ,
+	aki."systolic",
+	aki."original_bmi" ,
+	aki."bp_position" ,
+	aki."smoking" ,
+	aki."tobacco" ,
+	aki."tobacco_type" ,
+	aki."raw_vital_source" ,
+	aki."raw_ht" ,
+	aki."raw_wt" ,
+	aki."raw_diastolic" , 
+	aki."raw_systolic" ,
+	aki."raw_bp_position" ,
+	aki."raw_smoking" ,
+	aki."raw_tobacco" ,
+	aki."raw_tobacco_type" ,
+	aki."days_since_admit" 
+from gpc_aki_project.aki_vital_old aki
+join gpc_aki_project.dateshift_table pd on pd.patid = aki.patid;
