@@ -1068,6 +1068,15 @@ where dx.DX_DATE between pat.ADMIT_DATE and dateadd(day,1,(case when coalesce(pa
 
 --order by pat.PATID, pat.ENCOUNTERID, dx.ADMIT_DATE desc
 
+select
+       pat.ENCOUNTERID as ONSETS_ENCOUNTERID            	  	
+      ,dx.*
+      ,datediff(dd,pat.ADMIT_DATE,dx.DX_DATE) as DAYS_SINCE_ADMIT
+into #AKI_DX_CURRENT_ADMIT_DATE
+from #AKI_onsets pat
+join [&&cdm_db_name].[&&cdm_db_schema].DIAGNOSIS dx
+on pat.PATID = dx.PATID
+where dx.ADMIT_DATE between pat.ADMIT_DATE and dateadd(day,1,(case when coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) > pat.DISCHARGE_DATE then coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR) else pat.DISCHARGE_DATE end))
 
 /*Lab Table*/
 select distinct

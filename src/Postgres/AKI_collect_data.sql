@@ -106,6 +106,17 @@ on pat.PATID = dx.PATID
 where dx.DX_DATE between pat.ADMIT_DATE and greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE) + INTERVAL '1 DAY'
 ;
 
+create table GPC_aki_project.AKI_DX_CURRENT_ADMIT_DATE as
+select 
+       pat.ENCOUNTERID::char ONSETS_ENCOUNTERID            	  
+      ,dx.*              	  	
+      ,(dx.DX_DATE::date - pat.ADMIT_DATE::date) DAYS_SINCE_ADMIT
+from GPC_aki_project.AKI_onsets pat
+join &&cdm_db_schema.DIAGNOSIS dx
+on pat.PATID = dx.PATID
+where dx.ADMIT_DATE between pat.ADMIT_DATE and greatest(coalesce(pat.AKI3_ONSET,pat.AKI2_ONSET,pat.AKI1_ONSET,pat.NONAKI_ANCHOR),pat.DISCHARGE_DATE) + INTERVAL '1 DAY'
+;
+
 /*Lab Table*/
 create table GPC_aki_project.AKI_LAB as
 select distinct
