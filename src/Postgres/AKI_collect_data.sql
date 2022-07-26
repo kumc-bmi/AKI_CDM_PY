@@ -110,7 +110,7 @@ create table GPC_aki_project.AKI_DX_CURRENT_ADMIT_DATE as
 select 
        pat.ENCOUNTERID::char ONSETS_ENCOUNTERID            	  
       ,dx.*              	  	
-      ,(dx.DX_DATE::date - pat.ADMIT_DATE::date) DAYS_SINCE_ADMIT
+      ,(dx.ADMIT_DATE::date - pat.ADMIT_DATE::date) DAYS_SINCE_ADMIT
 from GPC_aki_project.AKI_onsets pat
 join &&cdm_db_schema.DIAGNOSIS dx
 on pat.PATID = dx.PATID

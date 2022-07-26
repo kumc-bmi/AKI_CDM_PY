@@ -115,7 +115,7 @@ create table AKI_DX_CURRENT_ADMIT_DATE as
 select
        to_char(pat.ENCOUNTERID) ONSETS_ENCOUNTERID            	  
       ,dx.*
-      ,round(dx.DX_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
+      ,round(dx.ADMIT_DATE-pat.ADMIT_DATE) DAYS_SINCE_ADMIT
 from AKI_onsets pat 
 join "&&cdm_db_schema".DIAGNOSIS dx
 on pat.PATID = dx.PATID
